@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pitch Awards: Vote the Best of Every Season</title>
+<style>
+:root{--bg:#f4f7f2;--card:#fff;--ink:#102016;--mute:#5b6b60;--line:#dbe4d8;--acc:#0a7d3c;--acc2:#f2b705;--bad:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1510;--card:#16211a;--ink:#eaf3ec;--mute:#93a69a;--line:#27382d;--acc:#2ecc71;--acc2:#f5c518;--bad:#ff6b5b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1510;--card:#16211a;--ink:#eaf3ec;--mute:#93a69a;--line:#27382d;--acc:#2ecc71;--acc2:#f5c518;--bad:#ff6b5b;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{padding:28px 16px 12px;text-align:center}
+h1{margin:0;font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:-.02em}
+h1 span{color:var(--acc)}
+.sub{color:var(--mute);margin:6px auto 0;max-width:560px}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px;background:var(--bg);border-bottom:1px solid var(--line)}
+nav button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:999px;cursor:pointer}
+nav button.on,.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+main{max-width:860px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:0 0 14px}
+.card h2,.card h3{margin:0 0 8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+select{font:inherit;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:10px}
+.opt{position:relative;text-align:left;font:inherit;color:var(--ink);background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;overflow:hidden}
+.opt.sel{border-color:var(--acc)}
+.opt .bar{position:absolute;left:0;top:0;bottom:0;background:var(--acc);opacity:.15;z-index:0}
+.opt span{position:relative;z-index:1}
+.opt small{float:right;color:var(--mute);position:relative;z-index:1}
+.note{color:var(--mute);font-size:.9rem}
+.opts{max-height:380px;overflow:auto;padding-right:4px}.srch{font:inherit;width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.lock{border-left:4px solid var(--acc2)}
+.ok{color:var(--acc);font-weight:600}.no{color:var(--bad);font-weight:600}
+.prog{height:8px;background:var(--line);border-radius:9px;overflow:hidden;margin:8px 0}
+.prog i{display:block;height:100%;background:var(--acc);width:0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.ad{border:2px dashed var(--line);border-radius:12px;padding:14px;text-align:center;color:var(--mute);margin:0 0 14px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.tag{display:inline-block;background:var(--acc2);color:#222;border-radius:6px;padding:1px 8px;font-size:.75rem;font-weight:700}
+footer{text-align:center;color:var(--mute);font-size:.85rem;padding:20px}
+</style></head><body>
+<header><h1>Pitch <span>Awards</span></h1>
+<p class="sub">Vote for the best footballer, club and position winners of every season. Pass the ball knowledge test first. Bots stay on the bench.</p></header>
+<nav id="nav"></nav>
+<main id="app"></main>
+<footer>Pitch Awards is a fan project and is not affiliated with FIFA, UEFA or any club or league.</footer>
+<script>
+var SEASONS=["2025/26","2026/27"];
+var AWARDS=[
+["best","Best Footballer of the Season",["Lamine Yamal","Ousmane Dembélé","Mohamed Salah","Kylian Mbappé","Erling Haaland","Vitinha","Harry Kane","Raphinha"]],
+["club","Club of the Season",["FC Barcelona","Paris Saint-Germain","Real Madrid","Liverpool","Arsenal","Manchester City","Bayern Munich","Inter"]],
+["gk","Goalkeeper of the Season",["Gianluigi Donnarumma","Thibaut Courtois","Alisson Becker","Emiliano Martínez","David Raya","Jan Oblak"]],
+["def","Defender of the Season",["Virgil van Dijk","Achraf Hakimi","Pau Cubarsí","William Saliba","Rúben Dias","Marquinhos"]],
+["mid","Midfielder of the Season",["Pedri","Jude Bellingham","Rodri","Declan Rice","Vitinha","Florian Wirtz"]],
+["wing","Winger of the Season",["Lamine Yamal","Mohamed Salah","Vinícius Júnior","Raphinha","Bukayo Saka","Ousmane Dembélé"]],
+["st","Striker of the Season",["Erling Haaland","Harry Kane","Kylian Mbappé","Viktor Gyökeres","Robert Lewandowski","Lautaro Martínez"]],
+["young","Young Player of the Season",["Lamine Yamal","Pau Cubarsí","Estêvão","Endrick","Kobbie Mainoo","Arda Güler"]]
+];
+var QS=[
+["Who is the all-time top scorer in World Cup history?",["Miroslav Klose","Ronaldo Nazário","Pelé","Just Fontaine"],0],
+["Which country won the 2022 World Cup?",["France","Argentina","Brazil","Croatia"],1],
+["Who won the 2024 Ballon d’Or?",["Vinícius Júnior","Rodri","Jude Bellingham","Erling Haaland"],1],
+["Which club has won the most Champions League titles?",["AC Milan","Bayern Munich","Real Madrid","Liverpool"],2],
+["Who is the Premier League’s all-time top scorer?",["Wayne Rooney","Harry Kane","Thierry Henry","Alan Shearer"],3],
+["Which club went unbeaten through the 2003/04 Premier League season?",["Arsenal","Chelsea","Manchester United","Liverpool"],0],
+["Who scored the “Hand of God” goal?",["Pelé","Diego Maradona","Zinedine Zidane","Lionel Messi"],1],
+["Who won Euro 2024?",["England","Germany","Spain","France"],2],
+["How many Ballon d’Or awards has Lionel Messi won?",["6","7","8","9"],2],
+["Old Trafford is the home ground of which club?",["Manchester United","Manchester City","Everton","Leeds United"],0],
+["Who won the Golden Boot at the 2022 World Cup?",["Lionel Messi","Kylian Mbappé","Olivier Giroud","Julián Álvarez"],1],
+["Which club won the Premier League in 2015/16 as 5000-1 outsiders?",["Tottenham","Leicester City","West Ham","Southampton"],1],
+["Camp Nou has long been the home of which club?",["Atlético Madrid","Valencia","Real Madrid","FC Barcelona"],3],
+["Which country won the 2006 World Cup final against France?",["Italy","Germany","Brazil","Spain"],0],
+["Who holds the record for most goals in a 38-game Premier League season?",["Mohamed Salah","Erling Haaland","Alan Shearer","Luis Suárez"],1],
+["How many men’s World Cups has Brazil won?",["4","5","6","3"],1],
+["Which club did Pelé spend most of his career at?",["Flamengo","Santos","Corinthians","New York Cosmos"],1],
+["The Yashin Trophy is awarded to the best player in which position?",["Striker","Defender","Goalkeeper","Midfielder"],2],
+["Which country hosted the 2010 World Cup?",["Brazil","Germany","South Africa","Japan"],2],
+["Who won the 2025 Ballon d’Or?",["Lamine Yamal","Ousmane Dembélé","Raphinha","Vitinha"],1]
+];
+var P="Gianluigi Donnarumma:G;Thibaut Courtois:G;Alisson Becker:G;Emiliano Martínez:G;David Raya:G;Jan Oblak:G;Mike Maignan:G;Marc-André ter Stegen:G;Yann Sommer:G;Gregor Kobel:G;Diogo Costa:G;Unai Simón:G;Ederson:G;Wojciech Szczęsny:G;Virgil van Dijk:D;Achraf Hakimi:D;Pau Cubarsí:Dy;William Saliba:D;Rúben Dias:D;Marquinhos:D;Trent Alexander-Arnold:D;Alphonso Davies:D;Theo Hernández:D;Joško Gvardiol:D;Antonio Rüdiger:D;Dayot Upamecano:D;Alessandro Bastoni:D;Gabriel Magalhães:D;Reece James:D;Nuno Mendes:D;Jules Koundé:D;Ronald Araújo:D;Andrew Robertson:D;Kyle Walker:D;Matthijs de Ligt:D;Dani Carvajal:D;Éder Militão:D;Federico Dimarco:D;Lisandro Martínez:D;Leny Yoro:Dy;Pedri:My;Jude Bellingham:M;Rodri:M;Declan Rice:M;Vitinha:M;Florian Wirtz:M;Jamal Musiala:M;Bruno Fernandes:M;Federico Valverde:M;Frenkie de Jong:M;Kevin De Bruyne:M;Martin Ødegaard:M;Nicolò Barella:M;João Neves:My;Gavi:My;Aurélien Tchouaméni:M;Eduardo Camavinga:M;Bernardo Silva:M;Luka Modrić:M;Alexis Mac Allister:M;Dominik Szoboszlai:M;Cole Palmer:M;Warren Zaïre-Emery:My;Enzo Fernández:M;Moisés Caicedo:M;Fabián Ruiz:M;Kobbie Mainoo:My;Arda Güler:My;Lamine Yamal:Wy;Mohamed Salah:W;Vinícius Júnior:W;Raphinha:W;Bukayo Saka:W;Ousmane Dembélé:W;Rafael Leão:W;Khvicha Kvaratskhelia:W;Phil Foden:W;Rodrygo:W;Jérémy Doku:W;Leroy Sané:W;Kingsley Coman:W;Nico Williams:Wy;Michael Olise:W;Bradley Barcola:Wy;Désiré Doué:Wy;Mohammed Kudus:W;Son Heung-min:W;Estêvão:Wy;Erling Haaland:S;Harry Kane:S;Kylian Mbappé:S;Viktor Gyökeres:S;Robert Lewandowski:S;Lautaro Martínez:S;Julián Álvarez:S;Victor Osimhen:S;Ollie Watkins:S;Alexander Isak:S;Marcus Thuram:S;Darwin Núñez:S;Dušan Vlahović:S;Jonathan David:S;Benjamin Šeško:Sy;Serhou Guirassy:S;Bryan Mbeumo:S;Endrick:Sy".split(";").map(function(x){var a=x.split(":");return{n:a[0],p:a[1][0],y:a[1].length>1}});
+P=P.concat("Joan García:G;Bart Verbruggen:G;Matvey Safonov:G;Lucas Chevalier:G;Yassine Bounou:G;Robert Sánchez:G;Marc Cucurella:D;Willian Pacho:D;Ayyoub Bouaddi:My;Luis Díaz:W;Sadio Mané:W;Antoine Semenyo:W;Lionel Messi:W;Kerim Alajbegovic:Wy;Antonio Nusa:Wy;Ferran Torres:S;Julián Quiñones:S;Donyell Malen:S".split(";").map(function(x){var a=x.split(":");return{n:a[0],p:a[1][0],y:a[1].length>1}}));
+function pl(f){return P.filter(f).map(function(x){return x.n})}
+var CL="FC Barcelona,Paris Saint-Germain,Real Madrid,Liverpool,Arsenal,Manchester City,Bayern Munich,Inter,Chelsea,Manchester United,Tottenham,Newcastle United,Aston Villa,Borussia Dortmund,Bayer Leverkusen,RB Leipzig,Atlético Madrid,Napoli,Juventus,AC Milan,Atalanta,Roma,Lazio,Benfica,Sporting CP,Porto,Ajax,PSV,Feyenoord,Marseille,Monaco,Lille,Lyon,Athletic Club,Real Sociedad,Villarreal,Girona,Brighton,Crystal Palace,Brentford,Fulham,Nottingham Forest,Bournemouth,Celtic,Galatasaray,Fenerbahçe,Flamengo,Palmeiras,Boca Juniors,River Plate,Al Hilal,Al Nassr,Inter Miami".split(",");
+AWARDS=[["best","Best Footballer of the Season",pl(function(){return 1})],["club","Club of the Season",CL],["gk","Goalkeeper of the Season",pl(function(x){return x.p=='G'})],["def","Defender of the Season",pl(function(x){return x.p=='D'})],["mid","Midfielder of the Season",pl(function(x){return x.p=='M'})],["wing","Winger of the Season",pl(function(x){return x.p=='W'})],["st","Striker of the Season",pl(function(x){return x.p=='S'})],["young","Young Player of the Season",pl(function(x){return x.y})]];
+var PASS=14,MINMS=40000;
+var S={tab:"vote",season:SEASONS[0],db:null,uid:null,me:{picks:{},passed:false,score:0},all:[],quiz:null,msg:""};
+var $=function(i){return document.getElementById(i)};
+function esc(t){var d=document.createElement("div");d.textContent=t;return d.innerHTML}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+var TABS=[["vote","Vote"],["test","Ball knowledge test"],["results","Results"],["earn","Sponsors and shop"]];
+function nav(){$("nav").innerHTML=TABS.map(function(t){return '<button data-t="'+t[0]+'" class="'+(S.tab==t[0]?"on":"")+'">'+t[1]+'</button>'}).join("");
+ $("nav").onclick=function(e){var t=e.target.getAttribute&&e.target.getAttribute("data-t");if(t){S.tab=t;S.msg="";render()}}}
+function ad(label){return '<div class="ad"><span class="tag">AD</span> '+label+'<br><span class="note">Sponsor slot. Replace with your banner or affiliate link.</span></div>'}
+function tally(season,aw){var c={};S.all.forEach(function(d){var p=(d.picks||{})[season+"|"+aw];if(p)c[p]=(c[p]||0)+1});return c}
+function seasonSel(){return '<div class="row" style="margin-bottom:12px"><label>Season <select id="ss">'+SEASONS.map(function(s){return '<option'+(s==S.season?" selected":"")+'>'+s+'</option>'}).join("")+'</select></label></div>'}
+function bindSeason(){var e=$("ss");if(e)e.onchange=function(){S.season=e.value;render()}}
+function save(){if(!S.db||!S.uid)return Promise.reject();return S.db.doc("votes/"+S.uid).set(S.me)}
+function render(){nav();var h="";
+ if(S.tab=="vote")h=vote();else if(S.tab=="test")h=test();else if(S.tab=="results")h=results();else h=earn();
+ $("app").innerHTML=h;bindSeason();bind()}
+function vote(){var h=seasonSel();
+ if(!S.db)h+='<div class="card lock"><b>Sign in to vote.</b> Voting needs a verified account so one person gets one vote. Open this page while signed in to claude.ai with contributor access.</div>';
+ else if(!S.me.passed)h+='<div class="card lock"><b>Locked.</b> Pass the 20-question ball knowledge test (at least '+PASS+' right) to unlock voting. <button class="btn pri" data-t2="test">Take the test</button></div>';
+ else h+='<div class="card"><span class="ok">Unlocked.</span> One vote per award per season. You can change your pick any time.</div>';
+ if(S.msg)h+='<div class="card note">'+esc(S.msg)+'</div>';
+ AWARDS.forEach(function(a,i){var c=tally(S.season,a[0]),tot=0,k;for(k in c)tot+=c[k];var mine=S.me.picks[S.season+"|"+a[0]];
+  h+='<div class="card"><h3>'+a[1]+' <span class="note">('+a[2].length+' nominees)</span></h3><input class="srch" data-f="'+a[0]+'" placeholder="Search nominees…"><div class="opts" id="o-'+a[0]+'">'+a[2].map(function(n){var v=c[n]||0,pc=tot?Math.round(v/tot*100):0;
+   return '<button class="opt'+(mine==n?" sel":"")+'" data-a="'+a[0]+'" data-n="'+esc(n)+'"'+(S.me.passed?"":" disabled")+'><i class="bar" style="width:'+pc+'%"></i><span>'+esc(n)+'</span><small>'+v+'</small></button>'}).join("")+'</div></div>';
+  if(i==2)h+=ad("Your brand here")});
+ return h}
+function bind(){
+ document.querySelectorAll("[data-t2]").forEach(function(b){b.onclick=function(){S.tab=b.getAttribute("data-t2");render()}});
+ document.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
+  if(!S.me.passed||!S.db)return;
+  var key=S.season+"|"+b.getAttribute("data-a");var now=Date.now();
+  if(now-(S.last||0)<700)return;S.last=now;
+  var prev=S.me.picks[key];S.me.picks[key]=b.getAttribute("data-n");
+  save().then(function(){S.msg="Vote saved.";load()}).catch(function(){S.me.picks[key]=prev;S.msg="Could not save your vote. Ask the site owner for contributor access.";render()})}});
+ document.querySelectorAll(".srch").forEach(function(i){i.oninput=function(){var q=i.value.toLowerCase();document.querySelectorAll("#o-"+i.getAttribute("data-f")+" .opt").forEach(function(b){b.style.display=b.getAttribute("data-n").toLowerCase().indexOf(q)<0?"none":""})}});
+ var st=$("start");if(st)st.onclick=startQuiz;
+ var sb=$("submitq");if(sb)sb.onclick=finishQuiz}
+function test(){
+ if(!S.db)return '<div class="card lock">Sign in first. The test is tied to your account so it can’t be farmed by scripts.</div>';
+ if(S.me.passed&&!S.quiz)return '<div class="card"><h2>You passed</h2><p class="ok">Score: '+S.me.score+'/20. Voting is unlocked.</p><button class="btn" data-t2="vote">Go vote</button></div>';
+ var cd=+(localStorage.getItem("pa_cd")||0);
+ if(!S.quiz){var w=cd-Date.now();
+  return '<div class="card"><h2>Ball knowledge test</h2><p>20 questions, shuffled answers. You need '+PASS+' or more to vote. Answering too fast counts as a bot and fails the test.</p>'+(w>0?'<p class="no">Try again in '+Math.ceil(w/1000)+' seconds.</p>':'<button id="start" class="btn pri">Start test</button>')+'</div>'}
+ var h='<div class="card"><h2>Question progress</h2><div class="prog"><i id="pb"></i></div>';
+ S.quiz.q.forEach(function(q,i){h+='<div style="margin:14px 0"><b>'+(i+1)+'. '+q[0]+'</b>'+q[1].map(function(o,j){return '<label style="display:block;padding:4px 0"><input type="radio" name="q'+i+'" value="'+j+'"> '+esc(o[0])+'</label>'}).join("")+'</div>'});
+ h+='<input class="hp" id="hp" tabindex="-1" autocomplete="off" aria-hidden="true"><button id="submitq" class="btn pri">Submit answers</button></div>';
+ setTimeout(function(){document.querySelectorAll("#app input[type=radio]").forEach(function(r){r.onchange=function(){var n=document.querySelectorAll("#app input:checked").length;$("pb").style.width=(n/20*100)+"%"}})},0);
+ return h}
+function startQuiz(){S.quiz={t:Date.now(),q:shuf(QS).map(function(q){return [q[0],shuf(q[1].map(function(o,i){return [o,i==q[2]]}))]})};render()}
+function finishQuiz(){var q=S.quiz.q,n=0,ans=0;
+ q.forEach(function(x,i){var c=document.querySelector('input[name="q'+i+'"]:checked');if(c){ans++;if(x[1][+c.value][1])n++}});
+ if(ans<20){alert("Answer all 20 questions first.");return}
+ var bot=$("hp").value||Date.now()-S.quiz.t<MINMS;S.quiz=null;
+ if(bot){localStorage.setItem("pa_cd",Date.now()+300000);S.msg="";alert("That was too fast to be human. Wait five minutes and try again.");render();return}
+ if(n>=PASS){S.me.passed=true;S.me.score=n;save().then(function(){S.msg="You passed with "+n+"/20. Voting unlocked.";S.tab="vote";load()}).catch(function(){S.me.passed=false;alert("Passed, but saving failed. Ask the owner for contributor access.");render()})}
+ else{localStorage.setItem("pa_cd",Date.now()+60000);alert("You scored "+n+"/20. You need "+PASS+". Try again in a minute.");render()}}
+function results(){var h=seasonSel()+'<div class="card note">Verified voters so far: <b>'+S.all.filter(function(d){return d.passed}).length+'</b></div>';
+ AWARDS.forEach(function(a){var c=tally(S.season,a[0]),r=Object.keys(c).sort(function(x,y){return c[y]-c[x]}).slice(0,3);
+  h+='<div class="card"><h3>'+a[1]+'</h3>'+(r.length?r.map(function(n,i){return '<div>'+["🥇","🥈","🥉"][i]+' '+esc(n)+' <span class="note">'+c[n]+' votes</span></div>'}).join(""):'<span class="note">No votes yet.</span>')+'</div>'});
+ return h+ad("Results page sponsor")}
+function earn(){return '<div class="card"><h2>Sponsor an award</h2><p>Put your brand on any category for a season, such as “Goalkeeper of the Season, presented by YourBrand”.</p><div class="grid2"><div class="card"><b>Category sponsor</b><p class="note">Logo and link on one award.</p></div><div class="card"><b>Title sponsor</b><p class="note">Your name on the whole site for a season.</p></div></div></div>'+ad("Banner placement")+
+ '<div class="card"><h2>Shop</h2><p class="note">Add affiliate links to boots, kits and fan gear here. Disclose that you earn a commission.</p></div>'+
+ '<div class="card"><h2>Fan Pass</h2><p class="note">Offer a paid badge, early results and an ad-free view through a payment link such as Stripe or Ko-fi.</p></div>'}
+function load(){if(!S.db){render();return}
+ S.db.collection("votes").get().then(function(s){S.all=s.docs.map(function(d){return d.data()||{}});render()}).catch(function(){render()})}
+render();
+(async function(){try{var u=await claude.use("user"),db=await claude.use("db");if(!db||!u)return;S.db=db;S.uid=await u.id();
+ var d=await db.doc("votes/"+S.uid).get();if(d.exists){var x=d.data();S.me={picks:x.picks||{},passed:!!x.passed,score:x.score||0}}
+ db.collection("votes").onSnapshot(function(s){S.all=s.docs.map(function(d){return d.data()||{}});if(S.tab!="test")render()});render()}catch(e){render()}})();
+</script></body></html>
